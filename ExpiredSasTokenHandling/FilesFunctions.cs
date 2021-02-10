@@ -9,8 +9,8 @@ using System.Linq;
 
 namespace ExpiredSasTokenHandling
 {
-    // StorageAccountConnectionString should be a key in your Function App Configuration (or local.settings.json for local development)
-    // It's value should contain a connection string to your Storage Account.
+// StorageAccountConnectionString should be a key in your Function App Configuration (or local.settings.json for local development)
+// It's value should contain a connection string to your Storage Account.
     [StorageAccount("StorageAccountConnectionString")]
     public static class ExpiredSasTokenHandling
     {
@@ -19,7 +19,7 @@ namespace ExpiredSasTokenHandling
         private const string FullFilePath = ContainerName + FilePath;
 
         [FunctionName("generateFileLink")]
-        public static IActionResult GetLinkFunction(
+        public static IActionResult GenerateFileLink(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)]
             HttpRequest request, [Blob(FullFilePath)] CloudBlobContainer container)
         {
@@ -37,27 +37,27 @@ namespace ExpiredSasTokenHandling
                 Scheme = request.Scheme,
                 Host = request.Host.Host,
                 Port = request.Host.Port.GetValueOrDefault(80),
-                Path = $"api/{FriendyFileProxyFunctionName}",
+                Path = $"api/{FileProxyFunctionName}",
             };
 
             var query = HttpUtility.ParseQueryString(linkToFriendlyProxy.Query);
-            query[FriendyFileProxyUrlParameter] = authenticatedBlobLink.ToString();
+            query[FileProxyUrlParameter] = authenticatedBlobLink.ToString();
             linkToFriendlyProxy.Query = query.ToString();
 
             return new OkObjectResult(linkToFriendlyProxy.ToString());
         }
 
-        private const string FriendyFileProxyFunctionName = "fileProxy";
-        private const string FriendyFileProxyUrlParameter = "originalUrl";
+        private const string FileProxyFunctionName = "fileProxy";
+        private const string FileProxyUrlParameter = "originalUrl";
         private const string StorageHost = "YOUR_STORAGE_NAME.blob.core.windows.net";
 
-        [FunctionName(FriendyFileProxyFunctionName)]
-        public static IActionResult LinkProxyFunction(
+        [FunctionName(FileProxyFunctionName)]
+        public static IActionResult FileProxy(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)]
             HttpRequest request)
         {
-            var blobUrlWithToken = request.Query.ContainsKey(FriendyFileProxyUrlParameter)
-                ? request.Query[FriendyFileProxyUrlParameter][0]
+            var blobUrlWithToken = request.Query.ContainsKey(FileProxyUrlParameter)
+                ? request.Query[FileProxyUrlParameter][0]
                 : null;
 
             if (!Uri.TryCreate(blobUrlWithToken, UriKind.Absolute, out var blobUrl))
@@ -85,7 +85,8 @@ namespace ExpiredSasTokenHandling
 
         private static IActionResult GetInvalidLinkHtml() => new ContentResult()
         {
-            Content = $"<html><h3>This link is not valid anymore, please go back to the app and regenerate it. Contact support in case of trouble.</h3></html>",
+            Content =
+                $"<html><h3>This link is not valid anymore, please go back to the app and regenerate it. Contact support in case of trouble.</h3></html>",
             ContentType = "text/html"
         };
     }
