@@ -9,13 +9,13 @@ using System.Linq;
 
 namespace ExpiredSasTokenHandling
 {
-// StorageAccountConnectionString should be a key in your Function App Configuration (or local.settings.json for local development)
-// It's value should contain a connection string to your Storage Account.
+    // StorageAccountConnectionString should be a key in your Function App Configuration (or local.settings.json for local development)
+    // It's value should contain a connection string to your Storage Account.
     [StorageAccount("StorageAccountConnectionString")]
     public static class ExpiredSasTokenHandling
     {
         private const string ContainerName = "YOUR_CONTAINER_NAME";
-        private const string FilePath = "/YOUR/FILE.pdf";
+        private const string FilePath = "/PATH/TO/YOUR/FILE.pdf";
         private const string FullFilePath = ContainerName + FilePath;
 
         [FunctionName("generateFileLink")]
@@ -49,7 +49,7 @@ namespace ExpiredSasTokenHandling
 
         private const string FileProxyFunctionName = "fileProxy";
         private const string FileProxyUrlParameter = "originalUrl";
-        private const string StorageHost = "YOUR_STORAGE_NAME.blob.core.windows.net";
+        private const string StorageHost = "YOUR_STORAGE_ACCOUNT_NAME.blob.core.windows.net";
 
         [FunctionName(FileProxyFunctionName)]
         public static IActionResult FileProxy(
@@ -85,8 +85,9 @@ namespace ExpiredSasTokenHandling
 
         private static IActionResult GetInvalidLinkHtml() => new ContentResult()
         {
+            // Keep calm, it's just HTML. You can consider to use a library to build it safer (for example HtmlGenerator)
             Content =
-                $"<html><h3>This link is not valid anymore, please go back to the app and regenerate it. Contact support in case of trouble.</h3></html>",
+                $"<html><body><div style=\"text-align: center; margin: 5%; margin-top: 20%\"><p style=\"font-size: 4vh; font-family:'San Francisco'\">This link is not valid anymore, please go back to the app and regenerate it.</p></div></body></html>",
             ContentType = "text/html"
         };
     }
