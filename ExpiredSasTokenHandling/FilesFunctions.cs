@@ -14,8 +14,8 @@ namespace ExpiredSasTokenHandling
     [StorageAccount("StorageAccountConnectionString")]
     public static class ExpiredSasTokenHandling
     {
-        private const string ContainerName = "auth";
-        private const string FilePath = "/K20/dummy.pdf";
+        private const string ContainerName = "YOUR_CONTAINER_NAME";
+        private const string FilePath = "/YOUR/FILE.pdf";
         private const string FullFilePath = ContainerName + FilePath;
 
         [FunctionName("generateFileLink")]
@@ -49,7 +49,7 @@ namespace ExpiredSasTokenHandling
 
         private const string FriendyFileProxyFunctionName = "fileProxy";
         private const string FriendyFileProxyUrlParameter = "originalUrl";
-        private const string StorageHost = "NAME_OF_YOUR_STORAGE.blob.core.windows.net";
+        private const string StorageHost = "YOUR_STORAGE_NAME.blob.core.windows.net";
 
         [FunctionName(FriendyFileProxyFunctionName)]
         public static IActionResult LinkProxyFunction(
@@ -85,7 +85,7 @@ namespace ExpiredSasTokenHandling
 
         private static IActionResult GetInvalidLinkHtml() => new ContentResult()
         {
-            Content = $"<html><h3>Link is invalid, regenerate it in the app</h3></html>",
+            Content = $"<html><h3>This link is not valid anymore, please go back to the app and regenerate it. Contact support in case of trouble.</h3></html>",
             ContentType = "text/html"
         };
     }
